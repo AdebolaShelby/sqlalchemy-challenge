@@ -3,14 +3,14 @@ Congratulations! You've decided to treat yourself to a long holiday vacation in 
 
 This task is do a climate analysis about the area. The following sections outline the steps needed to accomplish this task.
 
-**Part 1: Analyze and Explore the Climate Data**
+# Part 1: Analyze and Explore the Climate Data
 In this section, use Python and SQLAlchemy to do a basic climate analysis and data exploration of your climate database. Specifically, use SQLAlchemy ORM queries, Pandas, and Matplotlib. 
 
 * To do so, complete the following steps:
 
 * Perform a precipitation analysis and then a station analysis by completing the steps in the following two subsections.
 
-**Precipitation Analysis**
+# Precipitation Analysis
 * Find the most recent date in the dataset.
 
 * Using that date, get the previous 12 months of precipitation data by querying the previous 12 months of data.
@@ -23,7 +23,7 @@ In this section, use Python and SQLAlchemy to do a basic climate analysis and da
 
 * Use Pandas to print the summary statistics for the precipitation data.
 
-**Station Analysis**
+# Station Analysis
 * Design a query to calculate the total number of stations in the dataset.
 
 * Design a query to find the most-active stations (that is, the stations that have the most rows). To do so, complete the following steps:
@@ -45,7 +45,7 @@ In this section, use Python and SQLAlchemy to do a basic climate analysis and da
 * Plot the results as a histogram with bins=12
 * Close your session.
 
-**Part 2: Design Your Climate App**
+# Part 2: Design Your Climate App
 Design a Flask API based on the queries that was just developed. To do so, use Flask to create routes as follows:
 
 * /
