@@ -121,7 +121,7 @@ def temp_monthly():
     # Return the results
     return jsonify(temps=temps)
 
-@app.route("/api/v1.0/temp/<start>")
+@app.route("/api/v1.0/temp/start")
 def stats(start=None):
     print("This is the temperature data for the given date range")
     """Return TMIN, TAVG, TMAX."""
@@ -162,7 +162,7 @@ def stats(start=None):
     temps = list_tmin_start_end, list_tavg_start_end, list_tmax_start_end
     return jsonify(temps=temps)
 
-@app.route("/api/v1.0/temp/<start>/<end>")
+@app.route("/api/v1.0/temp/start/end")
 def stats(start=None, end=None):
     print("This is the temperature data for the given date range")
     """Return TMIN, TAVG, TMAX."""
@@ -210,6 +210,7 @@ def stats(start=None, end=None):
     list_tmax_start_end = list(np.ravel(tmax_start_end))
     temps = list_tmin_start_end, list_tavg_start_end, list_tmax_start_end
 
+
+    return jsonify(temps=temps)
 if __name__ == '__main__':
     app.run()
-    
