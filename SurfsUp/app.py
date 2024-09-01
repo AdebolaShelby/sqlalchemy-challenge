@@ -15,10 +15,6 @@ from sqlalchemy import create_engine, func
 # Database Setup
 #################################################
 
-# Create engine using the `hawaii.sqlite` database file
-#engine = create_engine("sqlite:///Resources/hawaii.sqlite")
-#engine = create_engine("sqlite:///hawaii.sqlite")
-
 # Create path to sqlite
 database_path = "../Resources/hawaii.sqlite"
 
@@ -26,15 +22,11 @@ database_path = "../Resources/hawaii.sqlite"
 engine = create_engine(f"sqlite:///{database_path}")
 
 
-
-
-
 # Declare a Base using `automap_base()`
 Base = automap_base()
 
 # Use the Base class to reflect the database tables
 Base.prepare(engine, reflect=True)
-#Base.prepare(autoload_with=engine)
 
 # Assign the measurement class to a variable called `Measurement` and
 # the station class to a variable called `Station`
@@ -57,21 +49,17 @@ app = Flask(__name__)
 @app.route("/")
 def welcome():
     return (
-        f"Welcome to the Hawaii Climate Analysis API!<br/>"
-        f"Available Routes:<br/>"
-        f"/api/v1.0/precipitation<br/>"
-        f"/api/v1.0/stations<br/>"
-        f"/api/v1.0/tobs<br/>"
-        f"/api/v1.0/temp/start<br/>"
-        f"/api/v1.0/temp/start/end"
+        f"<strong>Welcome to the Hawaii Climate Analysis API!</strong><br/>"
+        f"<i>Available Routes:</i>"
+        f"<li>/api/v1.0/precipitation</li>"
+        f"<li>/api/v1.0/stations</li>"
+        f"<li>/api/v1.0/tobs</li>"
+        f"<li>/api/v1.0/temp/<start></li>"
+        f"<li>/api/v1.0/temp/<start>/<end></li>"
     )
 
 recent_date = session.query(Measurement.date).order_by(Measurement.date.desc()).first()
-
-
 last_date = dt.datetime.strptime(recent_date[0], '%Y-%m-%d')
-
-
 first_date = session.query(Measurement.date).order_by(Measurement.date).first()
 
 
@@ -80,8 +68,8 @@ def precipitation():
     """return This is the precipitation data for the last year"""
 
     # Calculate the date 1 year ago from the last data point in the database
-    #year_ago = last_date - dt.timedelta(days=365)
-    recent_date = session.query(Measurement.date).order_by(Measurement.date.desc()).first()
+    year_ago = last_date - dt.timedelta(days=365)
+    #recent_date = session.query(Measurement.date).order_by(Measurement.date.desc()).first()
 
     # Query for the date and precipitation for the last year
     precipitation = session.query(Measurement.date, Measurement.prcp).\
@@ -121,96 +109,65 @@ def temp_monthly():
     # Return the results
     return jsonify(temps=temps)
 
-@app.route("/api/v1.0/temp/start")
-def stats(start=None):
-    print("This is the temperature data for the given date range")
-    """Return TMIN, TAVG, TMAX."""
+@app.route("/api/v1.0/temp/<start>")
+def start_date(start):
 
-    sel = [func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)]
+    # set start date
+    start_date = '2016-10-23'
 
-    if not end:
-        # calculate TMIN, TAVG, TMAX for dates greater than start
-        tmin = session.query(func.min(Measurement.tobs)).\
-            filter(Measurement.date >= start).all()
-        tavg = session.query(func.avg(Measurement.tobs)).\
-            filter(Measurement.date >= start).all()
-        tmax = session.query(func.max(Measurement.tobs)).\
-            filter(Measurement.date >= start).all()
-        
-        # Unravel results into a 1D array and convert to a list
-        list_tmin = list(np.ravel(tmin))
-        list_tavg = list(np.ravel(tavg))
-        list_tmax = list(np.ravel(tmax))
-        temps = list_tmin, list_tavg, list_tmax
-        return jsonify(temps=temps)
-    # calculate TMIN, TAVG, TMAX with start and stop
-    tmin_start_end = session.query(func.min(Measurement.tobs)).\
-        filter(Measurement.date >= start).\
-        filter(Measurement.date <= end).all()
-    tavg_start_end = session.query(func.avg(Measurement.tobs)).\
-        filter(Measurement.date >= start).\
-        filter(Measurement.date <= end).all()
-    tmax_start_end = session.query(func.max(Measurement.tobs)).\
-        filter(Measurement.date >= start).\
-        filter(Measurement.date <= end).all()
+    # create session link from Python to the DB
+    session = Session(engine)
+
+    # query TMIN, TAVG, and TMAX for all the dates greater than or equal to the start date.
+    results = session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
+        filter(Measurement.date >= start_date).all()
+    session.close()
+
+    # crate a json list of the results
+    tmin_tavg_tmax = []
+    for min, avg, max in results:
+        tmin_tavg_tmax_dict = {}
+        tmin_tavg_tmax_dict["Min Temp"] = min
+        tmin_tavg_tmax_dict["Avg Temp"] = avg
+        tmin_tavg_tmax_dict["Max Temp"] = max
+        tmin_tavg_tmax.append(tmin_tavg_tmax_dict)
 
 
-    # Unravel results into a 1D array and convert to a list
-    list_tmin_start_end = list(np.ravel(tmin_start_end))
-    list_tavg_start_end = list(np.ravel(tavg_start_end))
-    list_tmax_start_end = list(np.ravel(tmax_start_end))
-    temps = list_tmin_start_end, list_tavg_start_end, list_tmax_start_end
-    return jsonify(temps=temps)
+    return jsonify(tmin_tavg_tmax)
 
-@app.route("/api/v1.0/temp/start/end")
-def stats(start=None, end=None):
-    print("This is the temperature data for the given date range")
-    """Return TMIN, TAVG, TMAX."""
 
-    query = session.query(Measurement.date, func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
-        filter(Measurement.date >= start).\
-        filter(Measurement.date <= end).\
-        group_by(Measurement.date).all()
+
+@app.route("/api/v1.0/temp/<start>/<end>")
+def start_end_date(start, end):
+    
+        # set start date
+        start_date= '2016-08-23'
+        end_date = '2017-08-23'
+    
+        # create session link from Python to the DB
+        session = Session(engine)
+    
+        # query TMIN, TAVG, and TMAX for all the dates greater than or equal to the start date.
+        results = session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
+            filter(Measurement.date >= start_date).\
+            filter(Measurement.date <= end_date).all()
+        session.close()
+    
+        # crate a json list of the results
+        tmin_tavg_tmax = []
+        for min, avg, max in results:
+            tmin_tavg_tmax_dict = {}
+            tmin_tavg_tmax_dict["Min Temp"] = min
+            tmin_tavg_tmax_dict["Avg Temp"] = avg
+            tmin_tavg_tmax_dict["Max Temp"] = max
+            tmin_tavg_tmax.append(tmin_tavg_tmax_dict)
     
     
-    # Select statement
-    
-    sel = [func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)]
-
-    if not end:
-        # calculate TMIN, TAVG, TMAX for dates greater than start
-        tmin = session.query(func.min(Measurement.tobs)).\
-            filter(Measurement.date >= start).all()
-        tavg = session.query(func.avg(Measurement.tobs)).\
-            filter(Measurement.date >= start).all()
-        tmax = session.query(func.max(Measurement.tobs)).\
-            filter(Measurement.date >= start).all()
-        
-        # Unravel results into a 1D array and convert to a list
-        list_tmin = list(np.ravel(tmin))
-        list_tavg = list(np.ravel(tavg))
-        list_tmax = list(np.ravel(tmax))
-        temps = list_tmin, list_tavg, list_tmax
-        return jsonify(temps=temps)
-    # calculate TMIN, TAVG, TMAX with start and stop
-    tmin_start_end = session.query(func.min(Measurement.tobs)).\
-        filter(Measurement.date >= start).\
-        filter(Measurement.date <= end).all()
-    tavg_start_end = session.query(func.avg(Measurement.tobs)).\
-        filter(Measurement.date >= start).\
-        filter(Measurement.date <= end).all()
-    tmax_start_end = session.query(func.max(Measurement.tobs)).\
-        filter(Measurement.date >= start).\
-        filter(Measurement.date <= end).all()
+        return jsonify(tmin_tavg_tmax)
 
 
-    # Unravel results into a 1D array and convert to a list
-    list_tmin_start_end = list(np.ravel(tmin_start_end))
-    list_tavg_start_end = list(np.ravel(tavg_start_end))
-    list_tmax_start_end = list(np.ravel(tmax_start_end))
-    temps = list_tmin_start_end, list_tavg_start_end, list_tmax_start_end
+if __name__ == "__main__":
+    app.run(debug=True)
 
 
-    return jsonify(temps=temps)
-if __name__ == '__main__':
-    app.run()
+
