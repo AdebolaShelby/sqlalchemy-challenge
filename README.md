@@ -12,6 +12,7 @@ In this section, use Python and SQLAlchemy to do a basic climate analysis and da
 
 # Precipitation Analysis
 * Find the most recent date in the dataset.
+![Precipitation Analysis](Precipitation.png)
 
 * Using that date, get the previous 12 months of precipitation data by querying the previous 12 months of data.
 
@@ -22,6 +23,15 @@ In this section, use Python and SQLAlchemy to do a basic climate analysis and da
 * Plot the results by using the DataFrame plot method
 
 * Use Pandas to print the summary statistics for the precipitation data.
+    * Precipitation summary statistics
+    * count	2021.000000
+    * mean	0.177279
+    * std	0.461190
+    * min	0.000000
+    * 25%	0.000000
+    * 50%	0.020000
+    * 75%	0.130000
+    * max	6.700000
 
 # Station Analysis
 * Design a query to calculate the total number of stations in the dataset.
@@ -43,10 +53,13 @@ In this section, use Python and SQLAlchemy to do a basic climate analysis and da
 * Query the previous 12 months of TOBS data for that station.
 
 * Plot the results as a histogram with bins=12
+![Station Analysis](Temperature.png)
 * Close your session.
 
 # Part 2: Design Your Climate App
 Design a Flask API based on the queries that was just developed. To do so, use Flask to create routes as follows:
+
+![Climate App](<Screenshot 2024-09-01 203444.png>)
 
 * /
 
