@@ -68,22 +68,28 @@ def precipitation():
     """return This is the precipitation data for the last year"""
 
     # Calculate the date 1 year ago from the last data point in the database
-    year_ago = last_date - dt.timedelta(days=365)
-    #recent_date = session.query(Measurement.date).order_by(Measurement.date.desc()).first()
 
+    year_ago = last_date - dt.timedelta(days=365)
+   
     # Query for the date and precipitation for the last year
-    precipitation = session.query(Measurement.date, Measurement.prcp).\
-        filter(Measurement.date >= '2016-08-23').all()
+    perp_last_year = session.query(Measurement.date, Measurement.prcp).\
+        filter(Measurement.date >= year_ago).\
+        order_by(Measurement.date).all()
+    
+    #precipitation = session.query(Measurement.date, Measurement.prcp).\
+        #filter(Measurement.date >= '2016-08-23').all()
 
 
     # Dict with date as the key and prcp as the value
-    dict = {date: prcp for date, prcp in precipitation}
-    return jsonify(dict)
+    precipitation = {date: prcp for date, prcp in perp_last_year}
+    return jsonify(precipitation)
+
 
 
 @app.route("/api/v1.0/stations")
 def stations():
-    print("This is the list of stations")
+    """return This is the list of stations"""
+
     results = session.query(Station.station).all()
 
     # Unravel results into a 1D array and convert to a list
@@ -96,12 +102,12 @@ def temp_monthly():
 
     # Calculate the date 1 year ago from last data point
     prev_year = dt.date(2017, 8, 23) - dt.timedelta(days=365)
+    #prev_year = session.query(Measurement.date).order_by(Measurement.date.desc()).first()
 
     # Query the primary station for all tobs from the last year
- 
     results = session.query(Measurement.tobs).\
-        filter(Measurement.station == 'USC00519281').\
-        filter(Measurement.date >= prev_year).all()
+        filter(Measurement.date >= prev_year).\
+        order_by(Measurement.date).all()
 
     # Unravel results into a 1D array and convert to a list
     temps = list(np.ravel(results))
@@ -111,9 +117,10 @@ def temp_monthly():
 
 @app.route("/api/v1.0/temp/<start>")
 def start_date(start):
+    """"return This is the temperature data for the start date"""
 
     # set start date
-    start_date = '2016-10-23'
+    start_date = '2016-09-01'
 
     # create session link from Python to the DB
     session = Session(engine)
@@ -121,9 +128,10 @@ def start_date(start):
     # query TMIN, TAVG, and TMAX for all the dates greater than or equal to the start date.
     results = session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
         filter(Measurement.date >= start_date).all()
+    
     session.close()
 
-    # crate a json list of the results
+    # create a json list of the results
     tmin_tavg_tmax = []
     for min, avg, max in results:
         tmin_tavg_tmax_dict = {}
@@ -140,20 +148,24 @@ def start_date(start):
 @app.route("/api/v1.0/temp/<start>/<end>")
 def start_end_date(start, end):
     
-        # set start date
+        # set start and end date
         start_date= '2016-08-23'
         end_date = '2017-08-23'
     
         # create session link from Python to the DB
         session = Session(engine)
-    
-        # query TMIN, TAVG, and TMAX for all the dates greater than or equal to the start date.
+
+
+        # calculate TMIN, TAVG, and TMAX for the dates from the start date to the end date, inclusive.
+
         results = session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
             filter(Measurement.date >= start_date).\
-            filter(Measurement.date <= end_date).all()
+            filter(Measurement.date <= end_date).\
+            order_by(Measurement.date).all()
         session.close()
+
     
-        # crate a json list of the results
+        # create a json list of the results
         tmin_tavg_tmax = []
         for min, avg, max in results:
             tmin_tavg_tmax_dict = {}
