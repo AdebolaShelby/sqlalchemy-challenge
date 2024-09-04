@@ -49,13 +49,13 @@ app = Flask(__name__)
 @app.route("/")
 def welcome():
     return (
-        f"<strong>Welcome to the Hawaii Climate Analysis API!</strong><br/>"
-        f"<i>Available Routes:</i>"
-        f"<li>/api/v1.0/precipitation</li>"
-        f"<li>/api/v1.0/stations</li>"
-        f"<li>/api/v1.0/tobs</li>"
-        f"<li>/api/v1.0/temp/<start></li>"
-        f"<li>/api/v1.0/temp/<start>/<end></li>"
+        "<strong>Welcome to the Hawaii Climate Analysis API!</strong><br/>"
+        "<i>Available Routes:</i>"
+        "<li>/api/v1.0/precipitation</li>"
+        "<li>/api/v1.0/stations</li>"
+        "<li>/api/v1.0/tobs</li>"
+        "<li>/api/v1.0/temp/<start>/</li>"
+        "<li>/api/v1.0/temp/<start>/<end></li>"
     )
 
 recent_date = session.query(Measurement.date).order_by(Measurement.date.desc()).first()
@@ -120,7 +120,7 @@ def start_date(start):
     """"return This is the temperature data for the start date"""
 
     # set start date
-    start_date = '2016-09-01'
+    start_date = '2017-06-01'
 
     # create session link from Python to the DB
     session = Session(engine)
@@ -149,7 +149,7 @@ def start_date(start):
 def start_end_date(start, end):
     
         # set start and end date
-        start_date= '2016-08-23'
+        start_date= '2017-06-01'
         end_date = '2017-08-23'
     
         # create session link from Python to the DB
@@ -160,8 +160,8 @@ def start_end_date(start, end):
 
         results = session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
             filter(Measurement.date >= start_date).\
-            filter(Measurement.date <= end_date).\
-            order_by(Measurement.date).all()
+            filter(Measurement.date <= end_date).all()
+            #order_by(Measurement.date).all()
         session.close()
 
     
