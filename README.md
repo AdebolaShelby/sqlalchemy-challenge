@@ -83,7 +83,7 @@ Design a Flask API based on the queries that was just developed. To do so, use F
 
     Return a JSON list of temperature observations for the previous year.
 
-* /api/v1.0/<start> and /api/v1.0/<start>/<end>
+* /api/v1.0/start and /api/v1.0/&lt;start&gt;/&lt;end&gt;
 
 * Return a JSON list of the minimum temperature, the average temperature, and the maximum temperature for a specified start or start-end range.
 
